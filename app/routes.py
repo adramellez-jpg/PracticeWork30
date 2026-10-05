@@ -9,14 +9,18 @@ bp = Blueprint("api", __name__)
 
 # ---------- Клиенты ----------
 
+
 @bp.route("/clients", methods=["GET"])
 def get_clients():
     """GET /clients — краткий список всех клиентов."""
-    clients = db.session.execute(db.select(Client).order_by(Client.id)).scalars().all()
-    return jsonify([
-        {"id": c.id, "name": c.name, "surname": c.surname}
-        for c in clients
-    ])
+    clients = (
+        db.session.execute(db.select(Client).order_by(Client.id))
+        .scalars()
+        .all()
+    )
+    return jsonify(
+        [{"id": c.id, "name": c.name, "surname": c.surname} for c in clients]
+    )
 
 
 @bp.route("/clients/<int:client_id>", methods=["GET"])
@@ -54,16 +58,20 @@ def create_client():
     db.session.add(client)
     db.session.commit()
 
-    return jsonify(
-        id=client.id,
-        name=client.name,
-        surname=client.surname,
-        credit_card=client.credit_card,
-        car_number=client.car_number,
-    ), 201
+    return (
+        jsonify(
+            id=client.id,
+            name=client.name,
+            surname=client.surname,
+            credit_card=client.credit_card,
+            car_number=client.car_number,
+        ),
+        201,
+    )
 
 
 # ---------- Парковки ----------
+
 
 @bp.route("/parkings", methods=["POST"])
 def create_parking():
@@ -77,7 +85,13 @@ def create_parking():
 
     count_places = payload["count_places"]
     if not isinstance(count_places, int) or count_places <= 0:
-        return jsonify(error="Количество парковочных мест должно быть числом больше нуля"), 400
+        return (
+            jsonify(
+                error="Количество парковочных мест "
+                "должно быть числом больше нуля"
+            ),
+            400,
+        )
 
     parking = Parking(
         address=payload["address"],
@@ -88,16 +102,20 @@ def create_parking():
     db.session.add(parking)
     db.session.commit()
 
-    return jsonify(
-        id=parking.id,
-        address=parking.address,
-        opened=parking.opened,
-        count_places=parking.count_places,
-        count_available_places=parking.count_available_places,
-    ), 201
+    return (
+        jsonify(
+            id=parking.id,
+            address=parking.address,
+            opened=parking.opened,
+            count_places=parking.count_places,
+            count_available_places=parking.count_available_places,
+        ),
+        201,
+    )
 
 
 # ---------- Заезд / Выезд ----------
+
 
 @bp.route("/client_parkings", methods=["POST"])
 def client_parking_in():
@@ -143,12 +161,15 @@ def client_parking_in():
     db.session.add(cp)
     db.session.commit()
 
-    return jsonify(
-        id=cp.id,
-        client_id=cp.client_id,
-        parking_id=cp.parking_id,
-        time_in=cp.time_in.isoformat(),
-    ), 201
+    return (
+        jsonify(
+            id=cp.id,
+            client_id=cp.client_id,
+            parking_id=cp.parking_id,
+            time_in=cp.time_in.isoformat(),
+        ),
+        201,
+    )
 
 
 @bp.route("/client_parkings", methods=["DELETE"])

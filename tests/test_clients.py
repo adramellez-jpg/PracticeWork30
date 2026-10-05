@@ -1,5 +1,7 @@
 """Тесты эндпоинтов клиентов."""
+
 from app.models import Client
+
 from .factories import ClientFactory
 
 

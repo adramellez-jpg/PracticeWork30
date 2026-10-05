@@ -1,4 +1,5 @@
 """Фикстуры для тестов."""
+
 from datetime import datetime, timedelta
 
 import pytest

@@ -1,0 +1,36 @@
+# Конфигурация инструментов
+
+# -----BLACK-----
+[tool.black]
+line-length = 79
+target-version = ["py314"]
+extend-exclude = '''
+/(
+     \.venv
+   | \.git
+   | __pycache
+   | build
+   | dist
+)/
+'''
+
+# -----ISORT-----
+[tool.isort]
+profile = "black"
+line_length = 79
+skip = [".venv", ".git", "__pycache__", "build", "dist"]
+skip_glob = ["**/migrations/*"]
+
+# -----MYPY-----
+[tool.mypy]
+python_version = "3.14"
+ignore_missing_imports = true
+warn_unused_ignores = false
+warn_redundant_casts = true
+warn_unused_configs = true
+exclude = '(\.venv|\.git|__pycache__|build|dist)'
+
+# --- Игнорируем специфику Flask-SQLAlchemy в models.py ---
+[[tool.mypy.overrides]]
+module = "app.models"
+disable_error_code = ["name-defined", "assignment"]

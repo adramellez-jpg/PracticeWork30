@@ -1,7 +1,8 @@
 """Тесты заезда и выезда с парковки."""
+
 import pytest
 
-from app.models import ClientParking, Parking
+from app.models import Parking
 
 
 @pytest.mark.parking
@@ -10,7 +11,9 @@ def test_parking_in(client, db_session):
     parking_before = db_session.get(Parking, 1)
     places_before = parking_before.count_available_places
 
-    response = client.post("/client_parkings", json={"client_id": 1, "parking_id": 1})
+    response = client.post(
+        "/client_parkings", json={"client_id": 1, "parking_id": 1}
+    )
 
     assert response.status_code == 201
     body = response.get_json()
@@ -25,13 +28,17 @@ def test_parking_in(client, db_session):
 
 @pytest.mark.parking
 def test_parking_out(client, db_session):
-    """Выезд: 200, time_out >= time_in, count_available_places увеличивается."""
+    """
+    Выезд: 200, time_out >= time_in, count_available_places увеличивается.
+    """
 
     client.post("/client_parkings", json={"client_id": 1, "parking_id": 1})
     parking_before = db_session.get(Parking, 1)
     places_before = parking_before.count_available_places
 
-    response = client.delete("/client_parkings", json={"client_id": 1, "parking_id": 1})
+    response = client.delete(
+        "/client_parkings", json={"client_id": 1, "parking_id": 1}
+    )
 
     assert response.status_code == 200
     body = response.get_json()
@@ -50,7 +57,9 @@ def test_parking_out(client, db_session):
 @pytest.mark.parking
 def test_parking_in_closed(client):
     """Заезд на закрытую парковку → 403."""
-    response = client.post("/client_parkings", json={"client_id": 1, "parking_id": 2})
+    response = client.post(
+        "/client_parkings", json={"client_id": 1, "parking_id": 2}
+    )
 
     assert response.status_code == 403
     assert "закрыта" in response.get_json()["error"].lower()
@@ -63,7 +72,9 @@ def test_parking_in_no_places(client, db_session):
     parking.count_available_places = 0
     db_session.commit()
 
-    response = client.post("/client_parkings", json={"client_id": 1, "parking_id": 1})
+    response = client.post(
+        "/client_parkings", json={"client_id": 1, "parking_id": 1}
+    )
 
     assert response.status_code == 409
     assert "мест" in response.get_json()["error"].lower()
@@ -73,7 +84,9 @@ def test_parking_in_no_places(client, db_session):
 def test_parking_out_no_card(client):
     """Выезд без привязанной карты → 403."""
     client.post("/client_parkings", json={"client_id": 2, "parking_id": 1})
-    response = client.delete("/client_parkings", json={"client_id": 2, "parking_id": 1})
+    response = client.delete(
+        "/client_parkings", json={"client_id": 2, "parking_id": 1}
+    )
 
     assert response.status_code == 403
     assert "карт" in response.get_json()["error"].lower()
@@ -83,7 +96,9 @@ def test_parking_out_no_card(client):
 def test_parking_in_already_parked(client):
     client.post("/client_parkings", json={"client_id": 1, "parking_id": 1})
 
-    response = client.post("/client_parkings", json={"client_id": 1, "parking_id": 1})
+    response = client.post(
+        "/client_parkings", json={"client_id": 1, "parking_id": 1}
+    )
 
     assert response.status_code == 409
     assert "уже" in response.get_json()["error"].lower()
